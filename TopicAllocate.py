@@ -3,7 +3,7 @@ from keras.preprocessing.text import Tokenizer
 from gensim.models import Word2Vec
 import re
 import numpy as np 
-
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer, TfidfTransformer
 def preprocess(text):
     text = text.lower() # Lowercase
     text = re.sub(r'[^\w\d\s]+', ' ', text) # Remove punctuation
@@ -47,19 +47,36 @@ class Topic_Allocate():
 
     #encode vocabulary to vectors
     self.cbow_fit(texts, window_size)
-   
+    cv = CountVectorizer()
+
+    #calculate idf for each word
+    data = cv.fit_transform(texts)
+    tfidf_transformer = TfidfTransformer()
+    tfidf_matrix = tfidf_transformer.fit_transform(data)
+    word2idf = dict(zip(cv.get_feature_names(), tfidf_transformer.idf_))
+
     #transform texts into matrixs
     ts2vec = []
-    for text in texts:
+    for textid, text in enumerate(texts):
       sentenes = text.split('.')
       text2vec = np.empty((len(sentenes),self.vector_size))  
       for idx, sent in enumerate(sentenes):
         sen2vec = np.zeros((1, self.vector_size))
-        for word in sent:
-            try:
-                sen2vec += self.w2v[word]
-            except KeyError:
-                continue
+        
+        vectorizer = TfidfVectorizer()
+        vector = vectorizer.fit_transform([sent])
+        sent_dic = vectorizer.get_feature_names()
+        tf = vector.todense().tolist()[0]
+        for wordidx, word in enumerate(sent_dic):
+          tf_idf = 0
+          try:
+            tf_idf = tf[wordidx] / word2idf[word]
+          except:
+            continue
+          try:
+            sen2vec += self.w2v[word] * tf_idf
+          except KeyError:
+            continue
         text2vec[idx] = sen2vec
       ts2vec.append(text2vec)
     return ts2vec
