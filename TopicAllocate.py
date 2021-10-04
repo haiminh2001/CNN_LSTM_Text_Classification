@@ -1,6 +1,7 @@
 import nltk
 from keras.preprocessing.text import Tokenizer
 from gensim.models import Word2Vec
+import re
 
 def preprocess(text):
     text = text.lower() # Lowercase
