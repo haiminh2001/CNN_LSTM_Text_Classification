@@ -67,16 +67,19 @@ class Topic_Allocate():
         vector = vectorizer.fit_transform([sent])
         sent_dic = vectorizer.get_feature_names()
         tf = vector.todense().tolist()[0]
+        known_size = len(sent_dic)
         for wordidx, word in enumerate(sent_dic):
           tf_idf = 0
           try:
             tf_idf = tf[wordidx] / word2idf[word]
           except:
+            known_size -= 1
             continue
           try:
             sen2vec += self.w2v[word] * tf_idf
           except KeyError:
+            known_size -= 1
             continue
         text2vec[idx] = sen2vec
-      ts2vec.append(text2vec)
+      ts2vec.append(text2vec / known_size)
     return ts2vec
