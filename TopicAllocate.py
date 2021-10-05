@@ -32,7 +32,7 @@ class Topic_Allocate():
   def __init__(self):
     self = self
 
-  def cbow_fit (self, text_data, window_size):
+  def cbow_fit (self, text_data, window_size = 4, vector_size = 200):
     texts = text_data
     #split into words
     texts = [text.split() for text in texts]
@@ -43,15 +43,18 @@ class Topic_Allocate():
     # create dictionar
     self.dictionary = list(word2vec.wv.key_to_index)
     self.w2v = word2vec.wv
+
     
-  def doc2vec (self, text_data, window_size = 4, vector_size = 200):
+    
+  def doc2vec (self, text_data, window_size = 4, vector_size = 200, fit = False):
     self.vector_size = vector_size
 
     #lemmertize texts 
     texts = lemmertize(text_data)
     
     #encode vocabulary to vectors
-    self.cbow_fit(texts, window_size)
+    if fit:
+      self.cbow_fit(texts, window_size)
     cv = CountVectorizer()
 
     #calculate idf for each word
@@ -97,4 +100,31 @@ class Topic_Allocate():
         else:
           text2vec[idx] = sen2vec / known_size
       ts2vec.append(text2vec)
+    return ts2vec
+
+  # NOTE test word 2 vec train lstm
+  def doc2vec_w2v (self, text_data, window_size = 4, vector_size = 200):
+
+    #lemmertize texts 
+    texts = lemmertize(text_data)
+
+    ans = np.asarray([])
+    ts2vec = list([])
+    
+    for text in texts:
+      text2vec = []
+      vectorizer = TfidfVectorizer()
+      vector = vectorizer.fit_transform([text])
+      words = vectorizer.get_feature_names()
+      tf_idf = vector.todense().tolist()[0]
+
+      for idx, word in enumerate(words):
+        try:
+          text2vec.append(self.w2v[word] * tf_idf[idx])
+        except KeyError:
+          text2vec.append([0] * vector_size)
+          continue
+        
+      ts2vec.append(text2vec)
+      
     return ts2vec
