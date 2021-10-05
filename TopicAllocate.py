@@ -83,3 +83,4 @@ class Topic_Allocate():
         text2vec[idx] = sen2vec
       ts2vec.append(text2vec / known_size)
     return ts2vec
+#minh ngu ...
