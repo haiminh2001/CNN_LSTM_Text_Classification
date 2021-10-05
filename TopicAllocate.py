@@ -3,18 +3,19 @@ from keras.preprocessing.text import Tokenizer
 from gensim.models import Word2Vec
 import re
 import numpy as np 
-import string
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer, TfidfTransformer
-remove = string.punctuation
-remove = remove.replace(".", "") # don't remove dots
-pattern = r"[{}]".format(remove) # create the pattern
+from nltk import tokenize
+
 def preprocess(text):
     text = text.lower() # Lowercase
-    text = text.translate(str.maketrans('', '', pattern)) # Remove punctuation
+    text = text.replace('.','O')
+    text = re.sub(r'[^\w\s]',' ',text) # Remove punctuation
+    text = text.replace('O','.')
     text = re.sub(r'\s+', ' ', text) # Remove extra spaces
     return text.strip()
 
 nltk.download('wordnet')
+nltk.download('punkt')
 def lemmertize(texts):
    #texts input type: list of string
    wordnet_lemmatizer = nltk.stem.WordNetLemmatizer()
@@ -62,20 +63,23 @@ class Topic_Allocate():
     #transform texts into matrixs
     ts2vec = []
     for text in texts:
-      sentences = text.split('.')
-      print(sentences)
+      sentences = tokenize.sent_tokenize(text)
+      sentences = list(filter(None, sentences)) #remove blank strings
       text2vec = np.empty((len(sentences),self.vector_size))  
       for idx, sent in enumerate(sentences):
         sen2vec = np.zeros((1, self.vector_size))
         
+        #calculate tf for each sentence
         vectorizer = TfidfVectorizer()
         try:
           vector = vectorizer.fit_transform([sent])
         except:
+          text2vec[idx] = np.zeros((1,self.vector_size))
+          # print('Blank sent ', sent)
           continue
         sent_dic = vectorizer.get_feature_names()
         tf = vector.todense().tolist()[0]
-        known_size = len(sent_dic)
+        known_size = len(sent_dic) #known_size is the numbers of known vocabulary words
         for wordidx, word in enumerate(sent_dic):
           tf_idf = 0
           try:
@@ -88,6 +92,9 @@ class Topic_Allocate():
           except KeyError:
             known_size -= 1
             continue
-        text2vec[idx] = sen2vec
-      ts2vec.append(text2vec / known_size)
+        if known_size == 0:
+          text2vec[idx] = np.zeros((1,self.vector_size))
+        else:
+          text2vec[idx] = sen2vec / known_size
+      ts2vec.append(text2vec)
     return ts2vec
