@@ -3,10 +3,14 @@ from keras.preprocessing.text import Tokenizer
 from gensim.models import Word2Vec
 import re
 import numpy as np 
+import string
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer, TfidfTransformer
+remove = string.punctuation
+remove = remove.replace(".", "") # don't remove dots
+pattern = r"[{}]".format(remove) # create the pattern
 def preprocess(text):
     text = text.lower() # Lowercase
-    text = re.sub(r'[^\w\d\s]+', ' ', text) # Remove punctuation
+    text = text.translate(str.maketrans('', '', pattern)) # Remove punctuation
     text = re.sub(r'\s+', ' ', text) # Remove extra spaces
     return text.strip()
 
@@ -35,7 +39,7 @@ class Topic_Allocate():
     #embeddind words
     word2vec = Word2Vec(texts, min_count = 1, window =  window_size, vector_size= self.vector_size)
 
-    # create dictionary
+    # create dictionar
     self.dictionary = list(word2vec.wv.key_to_index)
     self.w2v = word2vec.wv
     
@@ -44,7 +48,7 @@ class Topic_Allocate():
 
     #lemmertize texts 
     texts = lemmertize(text_data)
-
+    
     #encode vocabulary to vectors
     self.cbow_fit(texts, window_size)
     cv = CountVectorizer()
@@ -57,14 +61,18 @@ class Topic_Allocate():
 
     #transform texts into matrixs
     ts2vec = []
-    for textid, text in enumerate(texts):
-      sentenes = text.split('.')
-      text2vec = np.empty((len(sentenes),self.vector_size))  
-      for idx, sent in enumerate(sentenes):
+    for text in texts:
+      sentences = text.split('.')
+      print(sentences)
+      text2vec = np.empty((len(sentences),self.vector_size))  
+      for idx, sent in enumerate(sentences):
         sen2vec = np.zeros((1, self.vector_size))
         
         vectorizer = TfidfVectorizer()
-        vector = vectorizer.fit_transform([sent])
+        try:
+          vector = vectorizer.fit_transform([sent])
+        except:
+          continue
         sent_dic = vectorizer.get_feature_names()
         tf = vector.todense().tolist()[0]
         known_size = len(sent_dic)
