@@ -47,7 +47,7 @@ class Topic_Allocate():
     except:
       return np.zeros(self.vector_size)  
 
-  def doc2vec (self, text_data, window_size = 4, vector_size = 200, segment_size = 10, fit = False):
+  def doc2vec (self, text_data, window_size = 4, vector_size = 200, segment_size = 10, data_enrichment = 1, fit = False):
       
     self.segment_size = segment_size
     #lemmertize texts 
@@ -88,14 +88,18 @@ class Topic_Allocate():
   
       #compress words into segments 
       n = cbow_tfidf_matrix.shape[0]
+      if data_enrichment > segment_size:
+        data_enrichment = 1
+        print('data_enrichment cannot be greater than segment_size')
       
       if n == 0:
         t2v = np.zeros((1,self.vector_size))
       elif n <= segment_size:
         t2v = np.mean(cbow_tfidf_matrix[ : n], axis = 0).reshape(1, self.vector_size)
       else:
+        step = int(segment_size / data_enrichment)
         end = n - segment_size
-        t2v = np.vstack([np.mean(cbow_tfidf_matrix[i : i + segment_size], axis = 0) for i in range(0, end, segment_size)])
+        t2v = np.vstack([np.mean(cbow_tfidf_matrix[i : i + segment_size], axis = 0) for i in range(0, end, step)])
       
         #adjust rows remaining at the end of the matrix 
         if (n % segment_size) != 0:
