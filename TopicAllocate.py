@@ -4,6 +4,8 @@ from gensim.models import Word2Vec
 import re
 import numpy as np 
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer, TfidfTransformer
+from nltk import tokenize
+
 nltk.download('wordnet')
 nltk.download('punkt')
 
@@ -59,7 +61,7 @@ class Topic_Allocate():
     #transform texts into matrixs
     ts2vec = []
     for text in texts:
-      sentences = Tokenizer.sent_tokenize(text)
+      sentences = tokenize.sent_tokenize(text)
       sentences = list(filter(None, sentences)) #remove blank strings
       text2vec = np.empty((len(sentences),self.vector_size))
       for idx, sent in enumerate(sentences):
@@ -92,7 +94,7 @@ class Topic_Allocate():
         else:
           text2vec[idx] = sen2vec / known_size
       ts2vec.append(text2vec)
-      return ts2vec
+    return ts2vec
 
 
 
