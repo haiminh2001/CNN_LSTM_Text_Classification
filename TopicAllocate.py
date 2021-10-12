@@ -136,7 +136,6 @@ class Topic_Allocate():
     X_train = np.array([func(x) for x in X_train])
 
     #create classifier
-    torch.manual_seed(42)
     self.classifier = CNNLSTM(len(self.onehot_encoder.categories_[0]), self.vector_size, 2).cuda()
     #calculate amount ratio of each labels for weighting
     ytrain = np.argmax(Y_train, axis = 1)
