@@ -153,7 +153,7 @@ class Topic_Allocate():
 
   def predict(self, test):
     #vectorize test
-    X_test = np.asarray(self.doc2vec(test, vector_size = self.vector_size, segment_size = self.segment_size, data_enrichment = self.data_enrichment))
+    X_test = np.asarray(self.doc2vec(test, vector_size = self.vector_size, segment_size = self.segment_size, segment_overlapping= self.segment_overlapping))
 
     #transform into sequence
     func = lambda x: fill_zeros(x, self.vector_size, self.max_size)
