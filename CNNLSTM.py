@@ -19,7 +19,7 @@ def Predict(model, X):
       pred = torch.vstack((pred, model(x.type(torch.float).cuda()).cpu()))
     return pred[1:]
 
-def Train (num_epochs, mode0, model1, loaders, loss_func, lr, X_train_sequence, Y_train, wd = 0):
+def Train (num_epochs, model0, model1, loaders, loss_func, lr, X_train_sequence, Y_train, wd = 0):
   mode0.train()
   total_step = len(loaders)
   y_label = np.argmax(Y_train, axis = 1)
