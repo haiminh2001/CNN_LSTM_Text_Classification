@@ -31,7 +31,7 @@ def Train (num_epochs, model, loaders, loss_func, lr, X_train_sequence, Y_train,
       loss = loss_func(out, y)
 
             
-      optimizer = optim.Adam(model.parameters(), lr = lr/(2**(epoch//10)), weight_decay = wd)
+      optimizer = optim.Adam(model.parameters(), lr = lr/(2.5**(epoch//10)), weight_decay = wd)
       optimizer.zero_grad()
 
       loss.backward()
