@@ -13,10 +13,10 @@ def Predict(model, X):
     return model(from_numpy(X).type(torch.float).to('cuda'))
   except:
     data_set = TestDataset(X)
-    pred = torch.empty((1,5)).type(torch.float).cuda()
-    data_loader = DataLoader(data_set, batch_size = 128)
+    pred = torch.empty((1,5)).type(torch.float).cpu()
+    data_loader = DataLoader(data_set, batch_size = 512)
     for x in data_loader:
-      pred = torch.vstack((pred, model(x.type(torch.float).cuda())))
+      pred = torch.vstack((pred, model(x.type(torch.float).cuda()).cpu()))
     return pred[1:]
 def Train (num_epochs, model, loaders, loss_func, lr, X_train_sequence, Y_train, wd = 0):
   model.train()
