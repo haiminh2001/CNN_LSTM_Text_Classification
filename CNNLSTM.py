@@ -20,7 +20,7 @@ def Predict(model, X):
     return pred[1:]
 
 def Train (num_epochs, model0, model1, loaders, loss_func, lr, X_train_sequence, Y_train, wd = 0):
-  mode0.train()
+  model0.train()
   total_step = len(loaders)
   y_label = np.argmax(Y_train, axis = 1)
   
@@ -33,12 +33,12 @@ def Train (num_epochs, model0, model1, loaders, loss_func, lr, X_train_sequence,
 
       x, y = x.type(torch.float).to('cuda'), y.type(torch.float).to('cuda')
             
-      out0 = mode0(x)
+      out0 = model0(x)
       out1 = model1(x)
       loss0 = loss_func(out0, y)
       loss1 = loss_func(out1, y)
 
-      optimizer0 = optim.Adam(mode0.parameters(), lr = lr/(2**(epoch//10)), weight_decay = wd)
+      optimizer0 = optim.Adam(model0.parameters(), lr = lr/(2**(epoch//10)), weight_decay = wd)
 
       if epoch < 11: 
         optimizer1.param_groups[0]['lr'] = 2*lr/( (epoch//3 + 1)*2 )
@@ -55,7 +55,7 @@ def Train (num_epochs, model0, model1, loaders, loss_func, lr, X_train_sequence,
       optimizer1.step()
 
       if (i+1) % total_step == 0:
-        y_pred0 = torch.argmax(Predict(mode0, X_train_sequence), dim = 1, keepdim= True).cpu()
+        y_pred0 = torch.argmax(Predict(model0, X_train_sequence), dim = 1, keepdim= True).cpu()
         y_pred1 = torch.argmax(Predict(model1, X_train_sequence), dim = 1, keepdim= True).cpu()
 
         precision0 = metrics.precision_score(y_label, y_pred0, average = None)
