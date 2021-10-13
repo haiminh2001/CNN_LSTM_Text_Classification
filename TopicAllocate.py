@@ -122,7 +122,7 @@ class Topic_Allocate():
      
     return doc2vec
 
-  def train(self, data, labels, batch_size = 16, epochs = 30):
+  def train(self, data, labels, batch_size = 16, epochs = 30, lr= 1e-3, wd = 1e-4):
     #vectorize data
     X_train = np.asarray(self.doc2vec(data, vector_size = self.vector_size, segment_size = self.segment_size, segment_overlapping = self.segment_overlapping, fit = True))
 
@@ -148,7 +148,7 @@ class Topic_Allocate():
     train_set = TrainDataset(X_train, Y_train)
     train_dataloader = DataLoader(train_set, batch_size= batch_size, shuffle = True)
     #train
-    Train(epochs, model= self.classifier,loaders= train_dataloader ,loss_func=  loss_fn,lr= 0.001,wd= 1e-4,X_train_sequence= X_train,Y_train= Y_train)
+    Train(epochs, model= self.classifier,loaders= train_dataloader ,loss_func=  loss_fn,lr= lr, wd= wd,X_train_sequence= X_train,Y_train= Y_train)
 
   def predict(self, test):
     #vectorize test
