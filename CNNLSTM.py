@@ -101,9 +101,7 @@ class CNNLSTM(nn.Module):
             nn.ReLU(),
             nn.BatchNorm1d(input_size),
             nn.MaxPool1d(2),
-            nn.Dropout(0.2),
-            nn.Conv1d(in_channels = input_size, out_channels = input_size, kernel_size = 3, padding = 1, stride = 1),
-            nn.MaxPool1d(2)
+          
         )
 
         self.lstm1 = nn.LSTM(input_size=input_size, hidden_size = 50,
