@@ -18,32 +18,61 @@ def Predict(model, X):
     for x in data_loader:
       pred = torch.vstack((pred, model(x.type(torch.float).cuda()).cpu()))
     return pred[1:]
-def Train (num_epochs, model, loaders, loss_func, lr, X_train_sequence, Y_train, wd = 0):
-  model.train()
+
+def Train (num_epochs, mode0, model1, loaders, loss_func, lr, X_train_sequence, Y_train, wd = 0):
+  mode0.train()
   total_step = len(loaders)
+  y_label = np.argmax(Y_train, axis = 1)
   
+  optimizer1 = optim.Adam(model1.parameters(), lr = 2*lr, weight_decay = wd)
+
+  precision0 , precision1 = 0, 0
+
   for epoch in range(num_epochs):
     for i, (x, y) in enumerate(loaders):
 
       x, y = x.type(torch.float).to('cuda'), y.type(torch.float).to('cuda')
             
-      out = model(x)
-      loss = loss_func(out, y)
+      out0 = mode0(x)
+      out1 = model1(x)
+      loss0 = loss_func(out0, y)
+      loss1 = loss_func(out1, y)
 
+      optimizer0 = optim.Adam(mode0.parameters(), lr = lr/(2**(epoch//10)), weight_decay = wd)
+
+      if epoch < 11: 
+        optimizer1.param_groups[0]['lr'] = 2*lr/( (epoch//3 + 1)*2 )
+      else:
+        optimizer1.param_groups[0]['lr'] = 2*lr/(2*4**(epoch//10 + 2))
             
-      optimizer = optim.Adam(model.parameters(), lr = lr/(2**(epoch//10)), weight_decay = wd)
-      optimizer.zero_grad()
+      optimizer0.zero_grad()
+      optimizer1.zero_grad()
 
-      loss.backward()
-      optimizer.step()
+      loss0.backward()
+      optimizer0.step()
+
+      loss1.backward()
+      optimizer1.step()
 
       if (i+1) % total_step == 0:
-        Y_pred = Predict(model, X_train_sequence)
-        check1 = torch.argmax(Y_pred, dim = 1, keepdim= True).cpu()
-        ytrain1 = np.argmax(Y_train, axis = 1)
+        y_pred0 = torch.argmax(Predict(mode0, X_train_sequence), dim = 1, keepdim= True).cpu()
+        y_pred1 = torch.argmax(Predict(model1, X_train_sequence), dim = 1, keepdim= True).cpu()
+
+        precision0 = metrics.precision_score(y_label, y_pred0, average = None)
+        precision1 = metrics.precision_score(y_label, y_pred1, average = None)
+
+        y_pred_merge = torch.zeros_like(y_label)
+        for i in range (len(y_label)):
+          if precision0[y_pred0[i]] > precision1[y_pred1[i]]: 
+            y_pred_merge[i] = y_pred0[i]
+          else:
+            y_pred_merge[i] = y_pred1[i]
+
         print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}, f1: {:.4f}' 
-                       .format(epoch + 1, num_epochs, i + 1, total_step, loss.item(),metrics.f1_score(ytrain1, check1, average='macro')))
-        del(Y_pred)
+                       .format(epoch + 1, num_epochs, i + 1, total_step, loss0.item(),metrics.f1_score(y_label, y_pred_merge, average='macro')))
+
+  return precision0, precision1
+
 
 class TrainDataset(Dataset):
     def __init__(self, text_data, text_label):

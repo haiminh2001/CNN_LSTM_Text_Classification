@@ -137,7 +137,8 @@ class Topic_Allocate():
 
     #create classifier
     torch.manual_seed(20)
-    self.classifier = CNNLSTM(len(self.onehot_encoder.categories_[0]), self.vector_size, 2).cuda()
+    self.classifier0 = CNNLSTM(len(self.onehot_encoder.categories_[0]), self.vector_size, 2).cuda()
+    self.classifier1 = CNNLSTM(len(self.onehot_encoder.categories_[0]), self.vector_size, 2).cuda()
     #calculate amount ratio of each labels for weighting
     ytrain = np.argmax(Y_train, axis = 1)
     ratio = [(ytrain.shape[0] / np.sum(np.where(ytrain == x,1,0)) ) for x in range(5)]
@@ -149,7 +150,7 @@ class Topic_Allocate():
     train_set = TrainDataset(X_train, Y_train)
     train_dataloader = DataLoader(train_set, batch_size= batch_size, shuffle = True)
     #train
-    Train(epochs, model= self.classifier,loaders= train_dataloader ,loss_func=  loss_fn,lr= lr, wd= wd,X_train_sequence= X_train,Y_train= Y_train)
+    self.precision0, self.precision1 = Train(epochs, model0= self.classifier0, model1 = self.classifier1, loaders= train_dataloader ,loss_func=  loss_fn,lr= lr, wd= wd,X_train_sequence= X_train,Y_train= Y_train)
 
   def predict(self, test):
     #vectorize test
@@ -159,5 +160,15 @@ class Topic_Allocate():
     func = lambda x: fill_zeros(x, self.vector_size, self.max_size)
     X_test = np.array([func(x) for x in X_test])
 
-    return Predict(self.classifier, X_test)
+    y_pred0 = torch.argmax(Predict(self.classifier0, X_test), dim = 1, keepdim= True).cpu()
+    y_pred1 = torch.argmax(Predict(self.classifier1, X_test), dim = 1, keepdim= True).cpu()
+    y_pred_merge = torch.zeros_like(y_pred0)
+
+    for i in range (len(y_pred_merge)):
+      if self.precision0[y_pred0[i]] > self.precision1[y_pred1[i]]: 
+        y_pred_merge[i] = y_pred0[i]
+      else:
+        y_pred_merge[i] = y_pred1[i]
+
+    return y_pred_merge
 
