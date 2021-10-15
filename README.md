@@ -18,7 +18,7 @@
 
 ## Introduction
 
-This is a final Project of ML basic course of VEF academy. 
+This is a final Project of ML course of VEF academy. 
 
 ### Topic 
 
@@ -58,7 +58,7 @@ https://github.com/haiminh2001/CNN_LSTM_Text_Classification.git
 
 ## Usage
 
-Run project in 'Medical Notes Classification.ipynb'
+Execute project in 'Medical Notes Classification.ipynb'
 
 ## Model
 
@@ -119,7 +119,7 @@ Dealing with small, unbalanced and noisy data, we have reached 0.48 f1_macro sco
 0.38 of BERT model.
 
 In other hand, we achieved 3 milestones of success:
-+ reduce the influence of meaningless words: We found that in the data set, there are many words that have little meaning but appear many times. it makes our model not work well. So we use 
++ reduce the influence of meaningless words: We found that in the data set, there are many words that have little meaning but appear many times. So we use 
 
   => We use tf-idf to solve this problem
 
