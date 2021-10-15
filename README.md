@@ -74,14 +74,14 @@ Run project in 'Medical Notes Classification.ipynb'
 
 ![image-20211015151416302](/home/kienanh/.config/Typora/typora-user-images/image-20211015151416302.png)
 
-=> This data set  has difference length from each text. And it also has noise data - the data containing only 1 word
+=> This data set has different lengths from each text. And it also has noise data - the data containing only 1 word
 
 ![image-20211015151813770](/home/kienanh/.config/Typora/typora-user-images/image-20211015151813770.png)
 
 ### Solution
 
 #### Preprocessing & Encode text
-1. Use library gensim.word2vec for encode trainning data, each word is encoded to a vector (500,).
+1. Use library gensim.word2vec for encoding trainning data, each word is encoded to a vector (500,).
 
 2. Split a text into segments, and we let it overlap itself.
 
