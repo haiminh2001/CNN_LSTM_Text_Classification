@@ -138,8 +138,9 @@ In other hand, we achieved 3 milestones of success:
 
 ## Contact
 
-Lê Trung Kiên         -    [kien.letrung610@gmail.com](mailto: kien.letrung610@gmail.com)
-Nguyễn Hải Minh    -    [haiminhnguyen2001@gmail.com](mailto: haiminhnguyen2001@gmail.com)
+Lê Trung Kiên         -    [kien.letrung610@gmail.com](kien.letrung610@gmail.com)
+
+Nguyễn Hải Minh    -    [haiminhnguyen2001@gmail.com](haiminhnguyen2001@gmail.com)
 
 Project Link: [https://github.com/haiminh2001/CNN_LSTM_Text_Classification](https://github.com/haiminh2001/CNN_LSTM_Text_Classification)
 
