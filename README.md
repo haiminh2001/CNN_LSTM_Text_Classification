@@ -43,7 +43,7 @@ train_size = 0.6 ; test_size = 0.4; random_state = 0
 + Code/result shoule be reproduceible
 + Metric to evaluate: f1_macro
 
-### Technologies Used
+### Libraries Used
 
 + [Pytorch](https://pytorch.org/)
 + [Numpy](https://numpy.org/)
